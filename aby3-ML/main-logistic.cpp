@@ -222,10 +222,10 @@ namespace aby3
 					if (i == 0) {
                         Session epNext(ios, "192.168.150.138", portNext, modeNext, cNameNext);
                         Session epPrev(ios, "192.168.150.138", portPrev, modePrev, cNamePrev);
-                    } else if (i == 1) {
+                    } else if (i == 2) {
                         Session epNext(ios, "192.168.150.1", portNext, modeNext, cNameNext);
                         Session epPrev(ios, "192.168.150.138", portPrev, modePrev, cNamePrev);
-					} else if (i == 2) {
+					} else if (i == 1) {
                         Session epNext(ios, "192.168.150.138", portNext, modeNext, cNameNext);
                         Session epPrev(ios, "192.168.150.1", portPrev, modePrev, cNamePrev);
                     } else {
