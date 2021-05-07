@@ -45,7 +45,7 @@ int linear_main_3pc_sh(int N, int Dim, int B, int IT, int testN, int pIdx, bool 
 	gen.setModel(model);
 
 
-	eMatrix<double> val_train_data(N, Dim), val_train_label(N, 1), val_W2(Dim, 1);
+    eMatrix<double> val_train_data(N, Dim), val_train_label(N, 1), val_W2(Dim, 1);
 	eMatrix<double>  val_test_data(testN, Dim), val_test_label(testN, 1);
 	gen.sample(val_train_data, val_train_label);
 	gen.sample(val_test_data, val_test_label);

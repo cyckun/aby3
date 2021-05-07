@@ -215,8 +215,22 @@ namespace aby3
 					auto portNext = 1212 + std::min(i, next);
 					auto portPrev = 1212 + std::min(i, prev);
 
-					Session epNext(ios, "127.0.0.1", portNext, modeNext, cNameNext);
-					Session epPrev(ios, "127.0.0.1", portPrev, modePrev, cNamePrev);
+					Session epNext, epPrev;
+
+					// Session epNext(ios, "127.0.0.1", portNext, modeNext, cNameNext);
+					// Session epPrev(ios, "127.0.0.1", portPrev, modePrev, cNamePrev);
+					if (i == 0) {
+                        Session epNext(ios, "192.168.150.138", portNext, modeNext, cNameNext);
+                        Session epPrev(ios, "192.168.150.138", portPrev, modePrev, cNamePrev);
+                    } else if (i == 1) {
+                        Session epNext(ios, "192.168.150.1", portNext, modeNext, cNameNext);
+                        Session epPrev(ios, "192.168.150.138", portPrev, modePrev, cNamePrev);
+					} else if (i == 2) {
+                        Session epNext(ios, "192.168.150.138", portNext, modeNext, cNameNext);
+                        Session epPrev(ios, "192.168.150.1", portPrev, modePrev, cNamePrev);
+                    } else {
+					    std::cout << "ip config error" << std::endl;
+					}
 
 					std::cout << "party " << i << " next " << portNext << " mode=server?:" << (modeNext == SessionMode::Server) << " name " << cNameNext << std::endl;
 					std::cout << "party " << i << " prev " << portPrev << " mode=server?:" << (modePrev == SessionMode::Server) << " name " << cNamePrev << std::endl;
