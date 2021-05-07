@@ -198,7 +198,9 @@ int linear_main_3pc_sh(oc::CLP& cmd)
 				auto portNext = 1212 + std::min(i, next);
 				auto portPrev = 1212 + std::min(i, prev);
 
-				Session epNext(ios, "127.0.0.1", portNext, modeNext, cNameNext);
+                // TLSContext *tls = new TLSContext();
+                // Session epNext(ios, "127.0.0.1", portNext, modeNext, reinterpret_cast<TLSContext &>(tls), cNameNext);
+                Session epNext(ios, "127.0.0.1", portNext, modeNext, cNameNext);
 				Session epPrev(ios, "127.0.0.1", portPrev, modePrev, cNamePrev);
 
 				std::cout << "party " << i << " next " << portNext << " mode=server?:" << (modeNext == SessionMode::Server) << " name " << cNameNext << std::endl;

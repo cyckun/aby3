@@ -3,6 +3,7 @@ cmake_minimum_required (VERSION 2.8.11)
 
 if(MSVC)
 else()
+	message(WARNING "MSVC not set")
 	set(CMAKE_C_FLAGS "-Wall  -maes -msse2 -msse4.1 -msse3 -mavx -mavx2 -mpclmul -Wfatal-errors -pthread -Wno-ignored-attributes -Wno-int-in-bool-context")
 	set(CMAKE_CXX_FLAGS  "${CMAKE_C_FLAGS}  -std=c++14")	# Select flags.
 	SET(CMAKE_CXX_FLAGS_RELEASE "-Ofast -DNDEBUG") 
@@ -12,14 +13,15 @@ endif()
 # Set a default build type for single-configuration
 # CMake generators if no build type is set.
 if(NOT CMAKE_BUILD_TYPE)
-   SET(CMAKE_BUILD_TYPE Release)
+	message(WARNING "enter release mode")
+   SET(CMAKE_BUILD_TYPE Debug)
 endif()
 
 if(NOT ${CMAKE_BUILD_TYPE} STREQUAL "Release")
   message(WARNING "\nConfiguration NOT set to Release. Please call cmake with -DCMAKE_BUILD_TYPE=Release  instead of ${CMAKE_BUILD_TYPE}")
 
 	if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-	  #message(WARNING "Debug build.")
+	  message(WARNING "Debug build.")
 	elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release") 
 	  #message(WARNING "Release build.")
 	elseif("${CMAKE_BUILD_TYPE}" STREQUAL  "RELWITHDEBINFO")
