@@ -203,8 +203,8 @@ namespace aby3
 			{
 			    std::string ip_next = "";
 			    std::string ip_prev = "";
-			    if (i == 0) { ip_next = "127.0.0.1"; ip_prev = "127.0.0.1"; }
-                else if (i == 1) { ip_next = "127.0.0.1"; ip_prev = "192.168.150.1"; }
+			    if (i == 0) { ip_next = "0.0.0.0"; ip_prev = "0.0.0.0"; }
+                else if (i == 1) { ip_next = "0.0.0.0"; ip_prev = "192.168.150.1"; }
                 else if (i == 2) { ip_next = "192.168.150.1"; ip_prev = "192.168.150.138"; }
                 else { std::cout << "ip config error. " << std::endl; }
 
