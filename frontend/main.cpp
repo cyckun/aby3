@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 
 		bool set = false;
 		oc::CLP cmd(argc, argv);
-        linear_main_3pc_sh(cmd);
+        // linear_main_3pc_sh(cmd);
 
 		if (cmd.isSet(unitTestTag))
 		{

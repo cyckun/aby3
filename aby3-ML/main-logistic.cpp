@@ -187,7 +187,7 @@ namespace aby3
 
 	int logistic_main_3pc_sh(oc::CLP & cmd)
 	{
-
+        std::cout << "enter logistic func:" << std::endl;
 		auto N = cmd.getManyOr<int>("N", { 10000 });
 		auto D = cmd.getManyOr<int>("D", { 1000 });
 		auto B = cmd.getManyOr<int>("B", { 128 });
@@ -203,8 +203,8 @@ namespace aby3
 			{
 			    std::string ip_next = "";
 			    std::string ip_prev = "";
-			    if (i == 0) { ip_next = "192.168.150.138"; ip_prev = "192.168.150.138"; }
-                else if (i == 1) { ip_next = "192.168.150.138"; ip_prev = "192.168.150.1"; }
+			    if (i == 0) { ip_next = "127.0.0.1"; ip_prev = "127.0.0.1"; }
+                else if (i == 1) { ip_next = "127.0.0.1"; ip_prev = "192.168.150.1"; }
                 else if (i == 2) { ip_next = "192.168.150.1"; ip_prev = "192.168.150.138"; }
                 else { std::cout << "ip config error. " << std::endl; }
 
@@ -219,11 +219,13 @@ namespace aby3
 					auto modePrev = i < prev ? SessionMode::Server : SessionMode::Client;
 
 
-					auto portNext = 12122 + std::min(i, next);
-					auto portPrev = 12122 + std::min(i, prev);
+					auto portNext = 1212 + std::min(i, next);
+					auto portPrev = 1212 + std::min(i, prev);
 
 					Session epNext(ios, ip_next, portNext, modeNext, cNameNext);
+					std::cout << "address test1" << std::endl;
 					Session epPrev(ios, ip_prev, portPrev, modePrev, cNamePrev);
+                    std::cout << "address test2" << std::endl;
 
 
 					std::cout << "party " << i << " next " << portNext << " mode=server?:" << (modeNext == SessionMode::Server) << " name " << cNameNext << std::endl;
