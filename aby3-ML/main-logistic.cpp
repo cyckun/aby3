@@ -201,7 +201,13 @@ namespace aby3
 		{
 			if (cmd.isSet("p") == false || cmd.get<int>("p") == i)
 			{
-				thrds.emplace_back(std::thread([i, N, D, B, IT, testN, &cmd, &ios]() {
+			    std::string ip = "";
+			    if (i == 0) { ip = "192.168.150.1"; }
+                else if (i == 1) { ip = "192.168.150.138"; }
+                else if (i == 2) { ip = "192.168.150.138"; }
+                else { std::cout << "ip config error. " << std::endl; }
+
+				thrds.emplace_back(std::thread([i, ip, N, D, B, IT, testN, &cmd, &ios]() {
 
 					auto next = (i + 1) % 3;
 					auto prev = (i + 2) % 3;
@@ -215,22 +221,9 @@ namespace aby3
 					auto portNext = 1212 + std::min(i, next);
 					auto portPrev = 1212 + std::min(i, prev);
 
-					Session epNext, epPrev;
+					Session epNext(ios, ip, portNext, modeNext, cNameNext);
+					Session epPrev(ios, ip, portPrev, modePrev, cNamePrev);
 
-					// Session epNext(ios, "127.0.0.1", portNext, modeNext, cNameNext);
-					// Session epPrev(ios, "127.0.0.1", portPrev, modePrev, cNamePrev);
-					if (i == 0) {
-                        Session epNext(ios, "192.168.150.138", portNext, modeNext, cNameNext);
-                        Session epPrev(ios, "192.168.150.138", portPrev, modePrev, cNamePrev);
-                    } else if (i == 2) {
-                        Session epNext(ios, "192.168.150.1", portNext, modeNext, cNameNext);
-                        Session epPrev(ios, "192.168.150.138", portPrev, modePrev, cNamePrev);
-					} else if (i == 1) {
-                        Session epNext(ios, "192.168.150.138", portNext, modeNext, cNameNext);
-                        Session epPrev(ios, "192.168.150.1", portPrev, modePrev, cNamePrev);
-                    } else {
-					    std::cout << "ip config error" << std::endl;
-					}
 
 					std::cout << "party " << i << " next " << portNext << " mode=server?:" << (modeNext == SessionMode::Server) << " name " << cNameNext << std::endl;
 					std::cout << "party " << i << " prev " << portPrev << " mode=server?:" << (modePrev == SessionMode::Server) << " name " << cNamePrev << std::endl;

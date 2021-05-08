@@ -1,3 +1,5 @@
+*.cbp
+.idea/
 *.a
 *.exe
 *.aux
