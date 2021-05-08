@@ -219,8 +219,8 @@ namespace aby3
 					auto modePrev = i < prev ? SessionMode::Server : SessionMode::Client;
 
 
-					auto portNext = 1212 + std::min(i, next);
-					auto portPrev = 1212 + std::min(i, prev);
+					auto portNext = 12122 + std::min(i, next);
+					auto portPrev = 12122 + std::min(i, prev);
 
 					Session epNext(ios, ip_next, portNext, modeNext, cNameNext);
 					Session epPrev(ios, ip_prev, portPrev, modePrev, cNamePrev);
