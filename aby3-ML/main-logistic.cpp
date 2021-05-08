@@ -201,13 +201,14 @@ namespace aby3
 		{
 			if (cmd.isSet("p") == false || cmd.get<int>("p") == i)
 			{
-			    std::string ip = "";
-			    if (i == 0) { ip = "192.168.150.1"; }
-                else if (i == 1) { ip = "192.168.150.138"; }
-                else if (i == 2) { ip = "192.168.150.138"; }
+			    std::string ip_next = "";
+			    std::string ip_prev = "";
+			    if (i == 0) { ip_next = "192.168.150.138"; ip_prev = "192.168.150.138"; }
+                else if (i == 1) { ip_next = "192.168.150.138"; ip_prev = "192.168.150.1"; }
+                else if (i == 2) { ip_next = "192.168.150.1"; ip_prev = "192.168.150.138"; }
                 else { std::cout << "ip config error. " << std::endl; }
 
-				thrds.emplace_back(std::thread([i, ip, N, D, B, IT, testN, &cmd, &ios]() {
+				thrds.emplace_back(std::thread([i, ip_next, ip_prev, N, D, B, IT, testN, &cmd, &ios]() {
 
 					auto next = (i + 1) % 3;
 					auto prev = (i + 2) % 3;
@@ -221,8 +222,8 @@ namespace aby3
 					auto portNext = 1212 + std::min(i, next);
 					auto portPrev = 1212 + std::min(i, prev);
 
-					Session epNext(ios, ip, portNext, modeNext, cNameNext);
-					Session epPrev(ios, ip, portPrev, modePrev, cNamePrev);
+					Session epNext(ios, ip_next, portNext, modeNext, cNameNext);
+					Session epPrev(ios, ip_prev, portPrev, modePrev, cNamePrev);
 
 
 					std::cout << "party " << i << " next " << portNext << " mode=server?:" << (modeNext == SessionMode::Server) << " name " << cNameNext << std::endl;
