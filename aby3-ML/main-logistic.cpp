@@ -204,8 +204,8 @@ namespace aby3
 			    std::string ip_next = "";
 			    std::string ip_prev = "";
 			    if (i == 0) { ip_next = "0.0.0.0"; ip_prev = "0.0.0.0"; }
-                else if (i == 1) { ip_next = "0.0.0.0"; ip_prev = "192.168.150.1"; }
-                else if (i == 2) { ip_next = "192.168.150.1"; ip_prev = "192.168.150.138"; }
+                else if (i == 1) { ip_next = "0.0.0.0"; ip_prev = "127.0.0.1"; }
+                else if (i == 2) { ip_next = "192.168.3.110"; ip_prev = "192.168.3.110"; }
                 else { std::cout << "ip config error. " << std::endl; }
 
 				thrds.emplace_back(std::thread([i, ip_next, ip_prev, N, D, B, IT, testN, &cmd, &ios]() {
@@ -241,6 +241,7 @@ namespace aby3
 					u64 prevAct, nextAct;
 					chlNext.recv(nextAct);
 					chlPrev.recv(prevAct);
+					std::cout << "i = " << i << " recv " << nextAct << " prevAct " << prevAct << std::endl;
 
 					if (next != nextAct)
 						std::cout << " bad next party idx, act: " << nextAct << " exp: " << next << std::endl;
