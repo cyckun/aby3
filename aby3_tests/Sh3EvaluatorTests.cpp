@@ -1,13 +1,15 @@
-#include "Sh3EvaluatorTests.h"
-#include "aby3/sh3/Sh3Evaluator.h"
-#include "aby3/sh3/Sh3Encryptor.h"
+/* "Copyright [2021] <Copyright Bytedance>" */
+
 #include <cryptoTools/Network/Channel.h>
 #include <cryptoTools/Network/IOService.h>
 #include <cryptoTools/Crypto/PRNG.h>
 #include <cryptoTools/Common/BitVector.h>
 #include <cryptoTools/Common/TestCollection.h>
-#include "aby3/sh3/Sh3FixedPoint.h"
 #include <iomanip>
+#include "Sh3EvaluatorTests.h"
+#include "aby3/sh3/Sh3Evaluator.h"
+#include "aby3/sh3/Sh3Encryptor.h"
+#include "aby3/sh3/Sh3FixedPoint.h"
 
 using namespace aby3;
 using namespace oc;
