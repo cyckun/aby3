@@ -1,13 +1,15 @@
-#include "Sh3EvaluatorTests.h"
-#include "aby3/sh3/Sh3Evaluator.h"
-#include "aby3/sh3/Sh3Encryptor.h"
+/* "Copyright [2021] <Copyright Bytedance>" */
+
 #include <cryptoTools/Network/Channel.h>
 #include <cryptoTools/Network/IOService.h>
 #include <cryptoTools/Crypto/PRNG.h>
 #include <cryptoTools/Common/BitVector.h>
 #include <cryptoTools/Common/TestCollection.h>
-#include "aby3/sh3/Sh3FixedPoint.h"
 #include <iomanip>
+#include "Sh3EvaluatorTests.h"
+#include "aby3/sh3/Sh3Evaluator.h"
+#include "aby3/sh3/Sh3Encryptor.h"
+#include "aby3/sh3/Sh3FixedPoint.h"
 
 using namespace aby3;
 using namespace oc;
@@ -591,6 +593,108 @@ void Sh3_Evaluator_asyncMul_matrixFixed_test(const oc::CLP& cmd)
 
 
 
+
+void Sh3_Evaluator_intmul_test()
+{
+    //throw UnitTestFail("known issue. " LOCATION);
+
+    IOService ios;
+    auto chl01 = Session(ios, "127.0.0.1:1313", SessionMode::Server, "01").addChannel();
+    auto chl10 = Session(ios, "127.0.0.1:1313", SessionMode::Client, "01").addChannel();
+    auto chl02 = Session(ios, "127.0.0.1:1313", SessionMode::Server, "02").addChannel();
+    auto chl20 = Session(ios, "127.0.0.1:1313", SessionMode::Client, "02").addChannel();
+    auto chl12 = Session(ios, "127.0.0.1:1313", SessionMode::Server, "12").addChannel();
+    auto chl21 = Session(ios, "127.0.0.1:1313", SessionMode::Client, "12").addChannel();
+
+
+    int trials = 10;
+    CommPkg comms[3];
+    comms[0] = { chl02, chl01 };
+    comms[1] = { chl10, chl12 };
+    comms[2] = { chl21, chl20 };
+
+    Sh3Encryptor encs[3];
+    Sh3Evaluator evals[3];
+
+    encs[0].init(0, toBlock(0, 0), toBlock(0, 1));
+    encs[1].init(1, toBlock(0, 1), toBlock(0, 2));
+    encs[2].init(2, toBlock(0, 2), toBlock(0, 0));
+
+    evals[0].init(0, toBlock(1, 0), toBlock(1, 1));
+    evals[1].init(1, toBlock(1, 1), toBlock(1, 2));
+    evals[2].init(2, toBlock(1, 2), toBlock(1, 0));
+
+    bool failed = false;
+    auto t0 = std::thread([&]() {
+        auto& enc = encs[0];
+        auto& eval = evals[0];
+        auto& comm = comms[0];
+        Sh3Runtime rt;
+        rt.init(0, comm);
+
+        for (u64 i = 0; i < trials; ++i)
+        {
+            i64 a, b, c, cc;
+            si64 aa, bb;
+            a = (i + 1) * trials;
+            b = (i + 2) * trials;
+            Sh3Task task = rt.noDependencies();
+
+            auto i0 = enc.localInt(task, a, aa);
+            auto i1 = enc.localInt(task, b, bb);
+            si64 result; si64  &rr = result;
+            clock_t start = clock();
+            task = eval.asyncMul(i0 && i1,  aa, bb, rr);
+            enc.reveal(task, rr, cc).get();
+
+            clock_t end = clock();
+            std::cout << "mul speed test:" << double(end-start)/CLOCKS_PER_SEC << std::endl;
+            c = a * b;
+
+
+            if (c != cc)
+            {
+                failed = true;
+                std::cout << c << std::endl;
+                std::cout << cc << std::endl;
+            }
+        }
+    });
+
+
+    auto rr = [&](int i)
+    {
+        auto& enc = encs[i];
+        auto& eval = evals[i];
+        auto& comm = comms[i];
+        Sh3Runtime rt;
+        rt.init(i, comm);
+
+        for (u64 i = 0; i < trials; ++i)
+        {
+            si64 aa, bb, result;
+            si64 & rr = result;
+            auto i0 = enc.remoteInt(rt, aa);
+            auto i1 = enc.remoteInt(rt, bb);  //  compile error ?
+            auto m = eval.asyncMul(i0 && i1, aa, bb, rr);
+            auto r = enc.reveal(m, 0, rr);
+
+            r.get();
+        }
+    };
+
+    auto t1 = std::thread(rr, 1);
+    auto t2 = std::thread(rr, 2);
+
+    t0.join();
+    t1.join();
+    t2.join();
+
+    if (failed)
+        throw std::runtime_error(LOCATION);
+}
+
+
 void Sh3_Evaluator_mul_test()
 {
 
@@ -640,9 +744,12 @@ void Sh3_Evaluator_mul_test()
 
             auto i0 = enc.localIntMatrix(rt, a, A);
             auto i1 = enc.localIntMatrix(rt, b, B);
+            clock_t start = clock();
             auto m = eval.asyncMul(i0 && i1, A, B, C);
             enc.reveal(m, C, cc).get();
 
+            clock_t end = clock();
+            std::cout << "mul speed test:" << double(end-start)/CLOCKS_PER_SEC << std::endl;
             c = a * b;
 
 
@@ -669,9 +776,10 @@ void Sh3_Evaluator_mul_test()
             si64Matrix A(trials, trials), B(trials, trials), C(trials, trials);
             auto i0 = enc.remoteIntMatrix(rt, A);
             auto i1 = enc.remoteIntMatrix(rt, B);
-
+            clock_t start = clock();
             auto m = eval.asyncMul(i0 && i1, A, B, C);
-
+            clock_t end = clock();
+            // std::cout << "remote mul speed test:" << double(end-start)/CLOCKS_PER_SEC << std::endl;
             auto r = enc.reveal(m, 0, C);
 
             r.get();
