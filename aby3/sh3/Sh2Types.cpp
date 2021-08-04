@@ -1,8 +1,8 @@
 #include "Sh2Types.h"
 
 bool aby2::details::areEqualImpl(
-    const std::array<oc::MatrixView<u8>, 1>& a,
-    const std::array<oc::MatrixView<u8>, 1>& b,
+    const std::array<oc::MatrixView<u8>, 2>& a,
+    const std::array<oc::MatrixView<u8>, 2>& b,
     u64 bitCount)
 {
     auto mod8 = bitCount & 7;
@@ -19,13 +19,15 @@ bool aby2::details::areEqualImpl(
         if (div8)
         {
             auto c1 = memcmp(a[0][i].data(), b[0][i].data(), div8);
+            auto c2 = memcmp(a[1][i].data(), b[1][i].data(), div8);
 
-            if(c1)
+            if(c1 || c2)
                 return false;
         }
 
         if (mask & (
-                (a[0](i, div8) ^ b[0](i, div8))
+                (a[0](i, div8) ^ b[0](i, div8)) |
+                (a[1](i, div8) ^ b[1](i, div8))
             ))
             return false;
     }

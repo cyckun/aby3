@@ -22,36 +22,37 @@ namespace aby2
         {
 
             bool areEqualImpl(
-                const std::array<oc::MatrixView<u8>, 1>& a,
-                const std::array<oc::MatrixView<u8>, 1>& b,
+                const std::array<oc::MatrixView<u8>, 2>& a,
+                const std::array<oc::MatrixView<u8>, 2>& b,
                 u64 bitCount);
 
 
             template<typename T>
             bool areEqual(
-                const std::array<oc::MatrixView<T>, 1>& a,
-                const std::array<oc::MatrixView<T>, 1>& b,
+                const std::array<oc::MatrixView<T>, 2>& a,
+                const std::array<oc::MatrixView<T>, 2>& b,
                 u64 bitCount)
             {
-                std::array<oc::MatrixView<u8>, 1> aa;
-                std::array<oc::MatrixView<u8>, 1> bb;
+                std::array<oc::MatrixView<u8>, 2> aa;
+                std::array<oc::MatrixView<u8>, 2> bb;
 
                 static_assert(std::is_pod<T>::value, "");
                 aa[0] = oc::MatrixView<u8>((u8*)a[0].data(), a[0].rows(), a[0].cols() * sizeof(T));
+                aa[1] = oc::MatrixView<u8>((u8*)a[1].data(), a[1].rows(), a[1].cols() * sizeof(T));
                 bb[0] = oc::MatrixView<u8>((u8*)b[0].data(), b[0].rows(), b[0].cols() * sizeof(T));
+                bb[1] = oc::MatrixView<u8>((u8*)b[1].data(), b[1].rows(), b[1].cols() * sizeof(T));
 
                 return areEqualImpl(aa, bb, bitCount);
             }
-
             template<typename T>
             bool areEqual(
-                const std::array<oc::Matrix<T>, 1>& a,
-                const std::array<oc::Matrix<T>, 1>& b,
+                const std::array<oc::Matrix<T>, 2>& a,
+                const std::array<oc::Matrix<T>, 2>& b,
                 u64 bitCount)
             {
 
-                std::array<oc::MatrixView<T>, 1> aa{ a[0]};
-                std::array<oc::MatrixView<T>, 1> bb{ b[0]};
+                std::array<oc::MatrixView<T>, 2> aa{ a[0], a[1] };
+                std::array<oc::MatrixView<T>, 2> bb{ b[0], b[1] };
 
                 return areEqual(aa, bb, bitCount);
             }
@@ -74,17 +75,18 @@ namespace aby2
             friend ShareType;
             using ref_value_type = typename ShareType::value_type;
 
-            std::array<ref_value_type*, 1> mData;
+            std::array<ref_value_type*, 2> mData;
 
 
-            Ref(ref_value_type& a0)
+            Ref(ref_value_type& a0, ref_value_type& a1)
             {
                 mData[0] = &a0;
+                mData[1] = &a1;
             }
 
             const ShareType& operator=(const ShareType& copy);
-            ref_value_type& operator[](u64 i) { return *mData[0]; }
-            const ref_value_type& operator[](u64 i) const { return *mData[0]; }
+            ref_value_type& operator[](u64 i) { return *mData[i]; }
+            const ref_value_type& operator[](u64 i) const { return *mData[i]; }
 
         };
 
@@ -93,14 +95,15 @@ namespace aby2
         struct si64
         {
             using value_type = i64;
-            std::array<value_type, 1> mData;
+            std::array<value_type, 2> mData;
 
             si64() = default;
             si64(const si64&) = default;
             si64(si64&&) = default;
-            si64(const std::array<value_type, 1>& d) :mData(d) {}
+            si64(const std::array<value_type, 2>& d) :mData(d) {}
             si64(const Ref<si64>& s) {
                 mData[0] = *s.mData[0];
+                mData[1] = *s.mData[1];
             }
 
             si64& operator=(const si64& copy);
@@ -116,25 +119,25 @@ namespace aby2
         struct sb64
         {
             using value_type = i64;
-            std::array<i64, 1> mData;
+            std::array<i64, 2> mData;
 
             sb64() = default;
             sb64(const sb64&) = default;
             sb64(sb64&&) = default;
-            sb64(const std::array<value_type, 1>& d) :mData(d) {}
+            sb64(const std::array<value_type, 2>& d) :mData(d) {}
 
-            i64& operator[](u64 i) { return mData[0]; }
-            const i64& operator[](u64 i) const { return mData[0]; }
+            i64& operator[](u64 i) { return mData[i]; }
+            const i64& operator[](u64 i) const { return mData[i]; }
 
 
             sb64& operator=(const sb64& copy) = default;
-            sb64 operator^(const sb64& x) { return { { mData[0] ^ x.mData[0] } }; }
+            sb64 operator^(const sb64& x) { return { { mData[0] ^ x.mData[0], mData[1] ^ x.mData[1] } }; }
 
         };
 
         struct si64Matrix
         {
-            std::array<eMatrix<i64>, 1> mShares;
+            std::array<eMatrix<i64>, 2> mShares;
 
             struct ConstRow { const si64Matrix& mMtx; const u64 mIdx; };
             struct Row { si64Matrix& mMtx; const u64 mIdx; const Row& operator=(const Row& row); const ConstRow& operator=(const ConstRow& row); };
@@ -151,6 +154,7 @@ namespace aby2
             void resize(u64 xSize, u64 ySize)
             {
                 mShares[0].resize(xSize, ySize);
+                mShares[1].resize(xSize, ySize);
             }
 
 
@@ -184,8 +188,8 @@ namespace aby2
                     mShares == b.mShares);
             }
 
-			eMatrix<i64>& operator[](u64 i) { return mShares[0]; }
-			const eMatrix<i64>& operator[](u64 i) const { return mShares[0]; }
+			eMatrix<i64>& operator[](u64 i) { return mShares[i]; }
+			const eMatrix<i64>& operator[](u64 i) const { return mShares[i]; }
         };
 
         //template<Decimal D>
@@ -249,7 +253,7 @@ namespace aby2
 
         struct sbMatrix
         {
-            std::array<oc::Matrix<i64>, 1> mShares;
+            std::array<oc::Matrix<i64>, 2> mShares;
             u64 mBitCount = 0;
             //struct ConstRow { const si64Matrix& mMtx; const u64 mIdx; };
             //struct Row { si64Matrix& mMtx; const u64 mIdx; const Row& operator=(const Row& row); const ConstRow& operator=(const ConstRow& row); };
@@ -268,6 +272,7 @@ namespace aby2
                 mBitCount = bitCount;
                 auto ySize = (bitCount + 63) / 64;
                 mShares[0].resize(xSize, ySize, oc::AllocType::Uninitialized);
+                mShares[1].resize(xSize, ySize, oc::AllocType::Uninitialized);
             }
 
 
@@ -308,7 +313,7 @@ namespace aby2
             static_assert(std::is_pod<T>::value, "must be pod");
             u64 mShareCount;
 
-            std::array<oc::MatrixView<T>, 1> mShares;
+            std::array<oc::MatrixView<T>, 2> mShares;
             std::unique_ptr<u8[]> mBacking;
 
             sPackedBinBase() = default;
@@ -479,13 +484,14 @@ namespace aby2
         inline const T& Ref<T>::operator=(const T & copy)
         {
             mData[0] = (i64*)&copy.mData[0];
-            // mData[1] = (i64*)&copy.mData[1];
+            mData[1] = (i64*)&copy.mData[1];
             return copy;
         }
 
         inline si64& si64::operator=(const si64& copy)
         {
             mData[0] = copy.mData[0];
+            mData[1] = copy.mData[1];
             return *this;
         }
 
@@ -493,7 +499,7 @@ namespace aby2
         {
             si64 ret;
             ret.mData[0] = mData[0] + rhs.mData[0];
-            // ret.mData[1] = mData[1] + rhs.mData[1];
+            ret.mData[1] = mData[1] + rhs.mData[1];
             return ret;
         }
 
@@ -501,27 +507,29 @@ namespace aby2
         {
             si64 ret;
             ret.mData[0] = mData[0] - rhs.mData[0];
-            // ret.mData[1] = mData[1] - rhs.mData[1];
+            ret.mData[1] = mData[1] - rhs.mData[1];
             return ret;
         }
 
         inline Ref<si64> si64Matrix::operator()(u64 x, u64 y) const
         {
             return Ref<si64>(
-                (i64&)mShares[0](x, y));
+                (i64&)mShares[0](x, y),
+                (i64&)mShares[1](x, y));
         }
 
         inline Ref<si64> si64Matrix::operator()(u64 xy) const
         {
             return Ref<si64>(
-                (i64&)mShares[0](xy));
+                (i64&)mShares[0](xy),
+                (i64&)mShares[1](xy));
         }
 
         inline si64Matrix si64Matrix::operator+(const si64Matrix& B) const
         {
             si64Matrix ret;
             ret.mShares[0] = mShares[0] + B.mShares[0];
-            // ret.mShares[1] = mShares[1] + B.mShares[1];
+            ret.mShares[1] = mShares[1] + B.mShares[1];
             return ret;
         }
 
@@ -529,7 +537,7 @@ namespace aby2
         {
             si64Matrix ret;
             ret.mShares[0] = mShares[0] - B.mShares[0];
-            // ret.mShares[1] = mShares[1] - B.mShares[1];
+            ret.mShares[1] = mShares[1] - B.mShares[1];
             return ret;
         }
 
@@ -537,7 +545,7 @@ namespace aby2
         {
             si64Matrix ret;
             ret.mShares[0] = mShares[0].transpose();
-            // ret.mShares[1] = mShares[1].transpose();
+            ret.mShares[1] = mShares[1].transpose();
             return ret;
         }
 
@@ -545,7 +553,7 @@ namespace aby2
         inline void si64Matrix::transposeInPlace()
         {
             mShares[0].transposeInPlace();
-            // mShares[1].transposeInPlace();
+            mShares[1].transposeInPlace();
         }
 
         inline si64Matrix::Row si64Matrix::row(u64 i)
@@ -568,7 +576,7 @@ namespace aby2
         inline const si64Matrix::Row & si64Matrix::Row::operator=(const Row & row)
         {
             mMtx.mShares[0].row(mIdx) = row.mMtx.mShares[0].row(row.mIdx);
-            // mMtx.mShares[1].row(mIdx) = row.mMtx.mShares[1].row(row.mIdx);
+            mMtx.mShares[1].row(mIdx) = row.mMtx.mShares[1].row(row.mIdx);
 
             return row;
         }
@@ -576,21 +584,21 @@ namespace aby2
         inline const si64Matrix::ConstRow & si64Matrix::Row::operator=(const ConstRow & row)
         {
             mMtx.mShares[0].row(mIdx) = row.mMtx.mShares[0].row(row.mIdx);
-            // mMtx.mShares[1].row(mIdx) = row.mMtx.mShares[1].row(row.mIdx);
+            mMtx.mShares[1].row(mIdx) = row.mMtx.mShares[1].row(row.mIdx);
             return row;
         }
 
         inline const si64Matrix::Col & si64Matrix::Col::operator=(const Col & col)
         {
             mMtx.mShares[0].col(mIdx) = col.mMtx.mShares[0].col(col.mIdx);
-            //  mMtx.mShares[1].col(mIdx) = col.mMtx.mShares[1].col(col.mIdx);
+            mMtx.mShares[1].col(mIdx) = col.mMtx.mShares[1].col(col.mIdx);
             return col;
         }
 
         inline const si64Matrix::ConstCol & si64Matrix::Col::operator=(const ConstCol & col)
         {
             mMtx.mShares[0].col(mIdx) = col.mMtx.mShares[0].col(col.mIdx);
-            // mMtx.mShares[1].col(mIdx) = col.mMtx.mShares[1].col(col.mIdx);
+            mMtx.mShares[1].col(mIdx) = col.mMtx.mShares[1].col(col.mIdx);
             return col;
         }
 

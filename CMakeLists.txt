@@ -14,7 +14,7 @@ endif()
 # CMake generators if no build type is set.
 if(NOT CMAKE_BUILD_TYPE)
 	message(WARNING "enter release mode")
-   SET(CMAKE_BUILD_TYPE Debug)
+	SET(CMAKE_BUILD_TYPE Release)
 endif()
 
 if(NOT ${CMAKE_BUILD_TYPE} STREQUAL "Release")
